@@ -1,4 +1,4 @@
-const { cors, json, readBody, requireDevice, outletId } = require("../../lib/auth");
+const { cors, json, readBody, requireDevice, outletId, githubToken } = require("../../lib/auth");
 const store = require("../../lib/store");
 
 module.exports = async (req, res) => {
@@ -11,7 +11,8 @@ module.exports = async (req, res) => {
   } catch {
     return json(res, 400, { error: "Invalid JSON" });
   }
-  const state = await store.load();
+  const token = githubToken(req);
+  const state = await store.load(token);
   const outlet = store.ensureOutlet(state, outletId(req, body), body.outletName);
   const eods = body.eods;
   const snap = { ...body };
@@ -21,13 +22,13 @@ module.exports = async (req, res) => {
     generatedAt: body.generatedAt || new Date().toISOString()
   };
   if (Array.isArray(eods)) {
-    outlet.eods = {};
+    if (!outlet.eods) outlet.eods = {};
     eods.forEach((eod) => {
       if (!eod || !eod.eodDate) return;
       outlet.eods[eod.eodDate] = eod;
     });
   } else if (eods && typeof eods === "object") {
-    outlet.eods = eods;
+    outlet.eods = Object.assign({}, outlet.eods || {}, eods);
   }
   const day = String(body.eodDate || body.businessDate || new Date().toISOString().slice(0, 10));
   if (!outlet.daily) outlet.daily = {};
@@ -42,6 +43,6 @@ module.exports = async (req, res) => {
     eodDate: day,
     shiftName: body.shiftName || ""
   };
-  await store.save(state);
+  await store.save(state, token);
   json(res, 200, { ok: true });
 };

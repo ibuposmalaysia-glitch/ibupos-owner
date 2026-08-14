@@ -1,4 +1,4 @@
-const { cors, json, readBody, requireDevice, outletId } = require("../../lib/auth");
+const { cors, json, readBody, requireDevice, outletId, githubToken } = require("../../lib/auth");
 const store = require("../../lib/store");
 
 module.exports = async (req, res) => {
@@ -11,7 +11,8 @@ module.exports = async (req, res) => {
   } catch {
     return json(res, 400, { error: "Invalid JSON" });
   }
-  const state = await store.load();
+  const token = githubToken(req);
+  const state = await store.load(token);
   const outlet = store.ensureOutlet(state, outletId(req, body), body.outletName);
   const row = {
     itemName: body.itemName || "Item",
@@ -24,6 +25,6 @@ module.exports = async (req, res) => {
     shiftName: body.shiftName || ""
   };
   outlet.deleted = [row].concat(outlet.deleted || []).slice(0, 500);
-  await store.save(state);
+  await store.save(state, token);
   json(res, 200, { ok: true });
 };
