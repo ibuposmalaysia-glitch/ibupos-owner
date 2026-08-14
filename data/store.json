@@ -1,0 +1,12 @@
+{
+  "outlets": {
+    "ibu-main": {
+      "id": "ibu-main",
+      "name": "IBU POS",
+      "snapshot": null,
+      "daily": {},
+      "deleted": [],
+      "drawer": []
+    }
+  }
+}
