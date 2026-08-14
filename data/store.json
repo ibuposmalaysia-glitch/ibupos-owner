@@ -5,9 +5,9 @@
       "name": "IBU POS",
       "daily": {
         "2026-08-19": {
-          "netSales": 228.30,
-          "tickets": 17,
-          "avgTicket": 13.43,
+          "netSales": 240.30,
+          "tickets": 18,
+          "avgTicket": 13.35,
           "refunds": 0.00,
           "paymentMix": [
             {
@@ -16,7 +16,7 @@
             },
             {
               "name": "Card",
-              "amount": 90.50
+              "amount": 102.50
             },
             {
               "name": "Other",
@@ -61,7 +61,7 @@
               "qty": 1
             }
           ],
-          "generatedAt": "2026-08-14T15:17:33.1668884\u002B05:30",
+          "generatedAt": "2026-08-14T15:17:53.1888876\u002B05:30",
           "eodDate": "2026-08-19",
           "shiftName": "SHIFT 2"
         },
@@ -644,14 +644,14 @@
       "snapshot": {
         "outletId": "ibu-main",
         "outletName": "IBU POS",
-        "generatedAt": "2026-08-14T15:17:33.1668884\u002B05:30",
+        "generatedAt": "2026-08-14T15:17:53.1888876\u002B05:30",
         "businessDate": "2026-08-19",
         "eodDate": "2026-08-19",
         "eodId": 10010,
         "eodClosed": false,
-        "eodNetSales": 228.30,
-        "eodTickets": 17,
-        "eodAvgTicket": 13.43,
+        "eodNetSales": 240.30,
+        "eodTickets": 18,
+        "eodAvgTicket": 13.35,
         "eodRefunds": 0.00,
         "eodPaymentMix": [
           {
@@ -660,7 +660,7 @@
           },
           {
             "name": "Card",
-            "amount": 90.50
+            "amount": 102.50
           },
           {
             "name": "Other",
@@ -709,9 +709,9 @@
         "shiftName": "SHIFT 2",
         "employeeName": "sa",
         "shiftOpen": true,
-        "netSales": 184.80,
-        "tickets": 12,
-        "avgTicket": 15.40,
+        "netSales": 196.80,
+        "tickets": 13,
+        "avgTicket": 15.14,
         "refunds": 0.00,
         "paymentMix": [
           {
@@ -720,7 +720,7 @@
           },
           {
             "name": "Card",
-            "amount": 57.00
+            "amount": 69.00
           },
           {
             "name": "Other",
@@ -771,9 +771,9 @@
           "eodDate": "2026-08-19",
           "eodId": 10010,
           "closed": false,
-          "netSales": 228.30,
-          "tickets": 17,
-          "avgTicket": 13.43,
+          "netSales": 240.30,
+          "tickets": 18,
+          "avgTicket": 13.35,
           "refunds": 0.00,
           "paymentMix": [
             {
@@ -782,7 +782,7 @@
             },
             {
               "name": "Card",
-              "amount": 90.50
+              "amount": 102.50
             },
             {
               "name": "Other",
@@ -887,9 +887,9 @@
               "start": "2026-08-12T16:42:17",
               "end": "",
               "open": true,
-              "netSales": 184.80,
-              "tickets": 12,
-              "avgTicket": 15.40,
+              "netSales": 196.80,
+              "tickets": 13,
+              "avgTicket": 15.14,
               "refunds": 0.00,
               "paymentMix": [
                 {
@@ -898,7 +898,7 @@
                 },
                 {
                   "name": "Card",
-                  "amount": 57.00
+                  "amount": 69.00
                 },
                 {
                   "name": "Other",
