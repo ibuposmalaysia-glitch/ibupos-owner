@@ -19,7 +19,9 @@ module.exports = async (req, res) => {
     amount: body.amount || 0,
     deletedAt: body.deletedAt || new Date().toISOString(),
     deletedBy: body.deletedBy || "Unknown",
-    orderNo: body.orderNo || ""
+    orderNo: body.orderNo || "",
+    eodDate: body.eodDate || "",
+    shiftName: body.shiftName || ""
   };
   outlet.deleted = [row].concat(outlet.deleted || []).slice(0, 500);
   await store.save(state);

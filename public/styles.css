@@ -38,3 +38,8 @@ select { width: 100%; margin-bottom: 10px; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
 .chips button { font-size: 12px; padding: 6px 10px; }
 .chips button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.section-title { font-size: 12px; color: var(--muted); font-weight: 700; margin: 12px 0 8px; text-transform: uppercase; letter-spacing: .04em; }
+.eod-block { border-bottom: 1px solid var(--line); }
+.eod-block:last-child { border-bottom: 0; }
+.eod-head { width: 100%; display: flex; justify-content: space-between; gap: 8px; align-items: center; text-align: left; background: transparent; border: 0; padding: 12px 0; font: inherit; }
+.shift-row { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0 8px 12px; border-top: 1px dashed var(--line); font-size: 14px; }

@@ -13,19 +13,34 @@ module.exports = async (req, res) => {
   }
   const state = await store.load();
   const outlet = store.ensureOutlet(state, outletId(req, body), body.outletName);
+  const eods = body.eods;
+  const snap = { ...body };
+  delete snap.eods;
   outlet.snapshot = {
-    ...body,
+    ...snap,
     generatedAt: body.generatedAt || new Date().toISOString()
   };
-  const day = String(body.businessDate || new Date().toISOString().slice(0, 10));
+  if (Array.isArray(eods)) {
+    outlet.eods = {};
+    eods.forEach((eod) => {
+      if (!eod || !eod.eodDate) return;
+      outlet.eods[eod.eodDate] = eod;
+    });
+  } else if (eods && typeof eods === "object") {
+    outlet.eods = eods;
+  }
+  const day = String(body.eodDate || body.businessDate || new Date().toISOString().slice(0, 10));
+  if (!outlet.daily) outlet.daily = {};
   outlet.daily[day] = {
-    netSales: body.netSales || 0,
-    tickets: body.tickets || 0,
-    avgTicket: body.avgTicket || 0,
-    refunds: body.refunds || 0,
-    paymentMix: body.paymentMix || [],
-    topItems: body.topItems || [],
-    generatedAt: outlet.snapshot.generatedAt
+    netSales: body.eodNetSales || body.netSales || 0,
+    tickets: body.eodTickets || body.tickets || 0,
+    avgTicket: body.eodAvgTicket || body.avgTicket || 0,
+    refunds: body.eodRefunds || body.refunds || 0,
+    paymentMix: body.eodPaymentMix || body.paymentMix || [],
+    topItems: body.eodTopItems || body.topItems || [],
+    generatedAt: outlet.snapshot.generatedAt,
+    eodDate: day,
+    shiftName: body.shiftName || ""
   };
   await store.save(state);
   json(res, 200, { ok: true });

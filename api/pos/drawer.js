@@ -16,7 +16,9 @@ module.exports = async (req, res) => {
   const row = {
     openedAt: body.openedAt || new Date().toISOString(),
     userName: body.userName || "Unknown",
-    source: body.source || "Manual"
+    source: body.source || "Manual",
+    eodDate: body.eodDate || "",
+    shiftName: body.shiftName || ""
   };
   outlet.drawer = [row].concat(outlet.drawer || []).slice(0, 500);
   await store.save(state);

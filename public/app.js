@@ -2,14 +2,23 @@ const app = document.getElementById("app");
 let tab = "live";
 let outlets = [];
 let outletId = "";
-let historyDays = [];
+let historyEods = [];
 let deleted = [];
 let drawer = [];
 let range = "week";
+let openEod = "";
 
 function money(n) {
   const v = Number(n || 0);
   return "RM " + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtDate(iso) {
+  if (!iso) return "";
+  const parts = String(iso).slice(0, 10).split("-");
+  if (parts.length !== 3) return iso;
+  const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
 async function api(path, opts) {
@@ -78,19 +87,31 @@ function mixRows(mix) {
   return mix.map(p => `<div class="row"><span>${p.name}</span><b>${money(p.amount)}</b></div>`).join("");
 }
 
+function kpis(net, tickets, avg, refunds) {
+  return `<div class="kpis">
+    <div class="kpi"><span>Net sales</span><b>${money(net)}</b></div>
+    <div class="kpi"><span>Bills</span><b>${tickets || 0}</b></div>
+    <div class="kpi"><span>Avg ticket</span><b>${money(avg)}</b></div>
+    <div class="kpi"><span>Refunds</span><b>${money(refunds)}</b></div>
+  </div>`;
+}
+
 function renderLive() {
   const snap = currentOutlet().snapshot;
-  app.innerHTML = header("Live sales", "Today at this outlet") + `<div class="wrap">
+  const shift = snap && (snap.shiftName || "Shift");
+  const eod = snap && (snap.eodDate || snap.businessDate);
+  const sub = snap
+    ? `EOD ${fmtDate(eod)} · ${shift}${snap.shiftOpen === false ? "" : " · open"}`
+    : "Current EOD and shift";
+  app.innerHTML = header("Live sales", sub) + `<div class="wrap">
     ${outletPicker()}${nav()}
-    ${!snap ? `<div class="card empty">Waiting for POS to send today's sales. Keep the cashier PC online.</div>` : `
-      <div class="kpis">
-        <div class="kpi"><span>Net sales</span><b>${money(snap.netSales)}</b></div>
-        <div class="kpi"><span>Bills</span><b>${snap.tickets || 0}</b></div>
-        <div class="kpi"><span>Avg ticket</span><b>${money(snap.avgTicket)}</b></div>
-        <div class="kpi"><span>Refunds</span><b>${money(snap.refunds)}</b></div>
-      </div>
-      <div class="card" style="margin-top:12px"><b>Payment mix</b>${mixRows(snap.paymentMix)}</div>
-      <div class="card"><b>Top items</b>${
+    ${!snap ? `<div class="card empty">Waiting for POS to send this shift. Keep the cashier PC online.</div>` : `
+      <div class="section-title">This shift · ${shift}${snap.employeeName ? " / " + snap.employeeName : ""}</div>
+      ${kpis(snap.netSales, snap.tickets, snap.avgTicket, snap.refunds)}
+      <div class="section-title">This EOD so far</div>
+      ${kpis(snap.eodNetSales != null ? snap.eodNetSales : snap.netSales, snap.eodTickets != null ? snap.eodTickets : snap.tickets, snap.eodAvgTicket != null ? snap.eodAvgTicket : snap.avgTicket, snap.eodRefunds != null ? snap.eodRefunds : snap.refunds)}
+      <div class="card" style="margin-top:12px"><b>Payment mix · ${shift}</b>${mixRows(snap.paymentMix)}</div>
+      <div class="card"><b>Top items · ${shift}</b>${
         (snap.topItems || []).length
           ? snap.topItems.map(i => `<div class="row"><span>${i.name}</span><b>${i.qty || 0}</b></div>`).join("")
           : `<div class="muted">No items yet.</div>`
@@ -101,28 +122,39 @@ function renderLive() {
   bindChrome();
 }
 
-function dateRange() {
-  const to = new Date();
-  const from = new Date();
-  if (range === "yesterday") { from.setDate(to.getDate() - 1); to.setDate(to.getDate() - 1); }
-  else if (range === "week") from.setDate(to.getDate() - 6);
-  else if (range === "month") from.setDate(to.getDate() - 29);
-  const iso = (d) => d.toISOString().slice(0, 10);
-  return { from: iso(from), to: iso(to) };
-}
-
 function renderHistory() {
-  const total = historyDays.reduce((s, d) => s + Number(d.netSales || 0), 0);
-  app.innerHTML = header("Previous sales", "Pick a date range") + `<div class="wrap">
+  const total = historyEods.reduce((s, d) => s + Number(d.netSales || 0), 0);
+  app.innerHTML = header("Previous sales", "By EOD date, then shift") + `<div class="wrap">
     ${outletPicker()}${nav()}
     <div class="chips">
-      <button data-range="yesterday" class="${range === "yesterday" ? "active" : ""}">Yesterday</button>
-      <button data-range="week" class="${range === "week" ? "active" : ""}">7 days</button>
-      <button data-range="month" class="${range === "month" ? "active" : ""}">30 days</button>
+      <button data-range="yesterday" class="${range === "yesterday" ? "active" : ""}">Last EOD</button>
+      <button data-range="week" class="${range === "week" ? "active" : ""}">7 EODs</button>
+      <button data-range="month" class="${range === "month" ? "active" : ""}">30 EODs</button>
     </div>
     <div class="kpi"><span>Range total</span><b>${money(total)}</b></div>
     <div class="card" style="margin-top:12px">
-      ${historyDays.length ? historyDays.map(d => `<div class="row"><span>${d.date}</span><b>${money(d.netSales)}</b></div>`).join("") : `<div class="empty">No previous days stored yet. Totals are saved at shift close / as POS syncs.</div>`}
+      ${historyEods.length ? historyEods.map(eod => {
+        const id = eod.eodDate;
+        const open = openEod === id;
+        const shifts = eod.shifts || [];
+        return `<div class="eod-block">
+          <button class="eod-head" data-eod="${id}">
+            <div>
+              <b>EOD ${fmtDate(id)}</b>
+              <div class="muted">${eod.closed ? "Closed" : "Open"} · ${shifts.length} shift${shifts.length === 1 ? "" : "s"}</div>
+            </div>
+            <b>${money(eod.netSales)}</b>
+          </button>
+          ${open && shifts.length ? shifts.map(s => `
+            <div class="shift-row">
+              <div>
+                <b>${s.shiftName || "Shift"}</b>
+                <div class="muted">${s.employeeName || ""}${s.open ? " · open" : ""} · ${s.tickets || 0} bills</div>
+              </div>
+              <b>${money(s.netSales)}</b>
+            </div>`).join("") : ""}
+        </div>`;
+      }).join("") : `<div class="empty">No EOD totals yet. They appear as POS syncs each shift.</div>`}
     </div>
   </div>`;
   bindChrome();
@@ -131,13 +163,28 @@ function renderHistory() {
     await loadHistory();
     renderHistory();
   });
+  document.querySelectorAll("[data-eod]").forEach(b => b.onclick = () => {
+    const id = b.getAttribute("data-eod");
+    openEod = openEod === id ? "" : id;
+    renderHistory();
+  });
+}
+
+function metaLine(r) {
+  const bits = [];
+  if (r.eodDate) bits.push("EOD " + fmtDate(r.eodDate));
+  if (r.shiftName) bits.push(r.shiftName);
+  if (r.deletedBy || r.userName) bits.push(r.deletedBy || r.userName);
+  const when = r.deletedAt || r.openedAt;
+  if (when) bits.push(new Date(when).toLocaleString());
+  return bits.join(" · ");
 }
 
 function renderDeleted() {
-  app.innerHTML = header("Deleted history", "Item, date, user") + `<div class="wrap">
+  app.innerHTML = header("Deleted history", "Item, EOD, shift, user") + `<div class="wrap">
     ${outletPicker()}${nav()}
     <div class="card">
-      ${deleted.length ? deleted.map(r => `<div class="row"><div><b>${r.itemName}</b><div class="muted">${r.deletedBy} · ${new Date(r.deletedAt).toLocaleString()}</div></div><b>${r.qty || ""}</b></div>`).join("") : `<div class="empty">No deleted items yet.</div>`}
+      ${deleted.length ? deleted.map(r => `<div class="row"><div><b>${r.itemName}</b><div class="muted">${metaLine(r)}</div></div><b>${r.qty || ""}</b></div>`).join("") : `<div class="empty">No deleted items yet.</div>`}
     </div>
   </div>`;
   bindChrome();
@@ -147,7 +194,7 @@ function renderDrawer() {
   app.innerHTML = header("Manual drawer", "Opens that were not payment") + `<div class="wrap">
     ${outletPicker()}${nav()}
     <div class="card">
-      ${drawer.length ? drawer.map(r => `<div class="row"><div><b>${r.userName}</b><div class="muted">${new Date(r.openedAt).toLocaleString()}</div></div></div>`).join("") : `<div class="empty">No manual drawer opens yet.</div>`}
+      ${drawer.length ? drawer.map(r => `<div class="row"><div><b>${r.userName}</b><div class="muted">${metaLine(r)}</div></div></div>`).join("") : `<div class="empty">No manual drawer opens yet.</div>`}
     </div>
   </div>`;
   bindChrome();
@@ -168,10 +215,24 @@ function paint() {
   else renderLive();
 }
 
+function historyRange(eods) {
+  const dates = [...new Set((eods || []).map(e => e.eodDate).filter(Boolean))].sort();
+  if (!dates.length) return { from: "0000-01-01", to: "9999-12-31" };
+  const latest = dates[dates.length - 1];
+  if (range === "yesterday") {
+    const prev = dates.length > 1 ? dates[dates.length - 2] : latest;
+    return { from: prev, to: prev };
+  }
+  const take = range === "month" ? 30 : 7;
+  return { from: dates[Math.max(0, dates.length - take)], to: latest };
+}
+
 async function loadHistory() {
-  const { from, to } = dateRange();
-  const data = await api(`/api/owner/history?outletId=${encodeURIComponent(outletId)}&from=${from}&to=${to}`);
-  historyDays = data.days || [];
+  const all = await api(`/api/owner/history?outletId=${encodeURIComponent(outletId)}`);
+  const list = all.eods && all.eods.length ? all.eods : (all.days || []).map(d => ({ eodDate: d.date, ...d, shifts: [] }));
+  const { from, to } = historyRange(list);
+  historyEods = list.filter(e => e.eodDate >= from && e.eodDate <= to);
+  if (!openEod && historyEods[0]) openEod = historyEods[0].eodDate;
 }
 
 async function loadLists() {
