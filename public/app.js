@@ -184,7 +184,7 @@ function renderDeleted() {
   app.innerHTML = header("Deleted history", "Item, EOD, shift, user") + `<div class="wrap">
     ${outletPicker()}${nav()}
     <div class="card">
-      ${deleted.length ? deleted.map(r => `<div class="row"><div><b>${r.itemName}</b><div class="muted">${metaLine(r)}</div></div><b>${r.qty || ""}</b></div>`).join("") : `<div class="empty">No deleted items yet.</div>`}
+      ${deleted.length ? deleted.map(r => `<div class="row"><div><b>${r.itemName || "Item"}</b><div class="muted">${metaLine(r)}</div></div><div class="right"><b>${money(r.amount)}</b><div class="muted">x ${r.qty || 0}</div></div></div>`).join("") : `<div class="empty">No deleted items yet.</div>`}
     </div>
   </div>`;
   bindChrome();
@@ -201,7 +201,11 @@ function renderDrawer() {
 }
 
 function bindChrome() {
-  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tab = b.getAttribute("data-tab"); paint(); });
+  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
+    tab = b.getAttribute("data-tab");
+    if (tab === "deleted" || tab === "drawer" || tab === "history") loadAll().catch(() => paint());
+    else paint();
+  });
   const out = document.getElementById("outlet");
   if (out) out.onchange = async () => { outletId = out.value; await loadLists(); paint(); };
   const lo = document.getElementById("logout");

@@ -29,6 +29,7 @@ body { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
 .btn-primary { width: 100%; background: var(--navy); color: #fff; border: 0; font-weight: 700; margin-top: 10px; }
 .row { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .row:last-child { border-bottom: 0; }
+.right { text-align: right; }
 .muted { color: var(--muted); font-size: 12px; }
 .empty { color: var(--muted); padding: 24px 8px; text-align: center; }
 .pin { font-size: 22px; letter-spacing: 8px; text-align: center; width: 100%; padding: 14px; }
