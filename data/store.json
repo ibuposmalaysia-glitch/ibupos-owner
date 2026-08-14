@@ -61,7 +61,7 @@
               "qty": 1
             }
           ],
-          "generatedAt": "2026-08-14T15:10:13.1822189\u002B05:30",
+          "generatedAt": "2026-08-14T15:10:33.1362047\u002B05:30",
           "eodDate": "2026-08-19",
           "shiftName": "SHIFT 2"
         },
@@ -479,6 +479,18 @@
         {
           "outletId": "ibu-main",
           "outletName": "IBU POS",
+          "itemName": "TEH TARIK (S)",
+          "qty": 1,
+          "amount": 0,
+          "orderNo": "30284",
+          "deletedAt": "2026-08-14T15:10:31.6188270\u002B05:30",
+          "deletedBy": "sa",
+          "eodDate": "2026-08-19",
+          "shiftName": "SHIFT 2"
+        },
+        {
+          "outletId": "ibu-main",
+          "outletName": "IBU POS",
           "itemName": "TEH HALIA (S)",
           "qty": 1,
           "amount": 0,
@@ -632,7 +644,7 @@
       "snapshot": {
         "outletId": "ibu-main",
         "outletName": "IBU POS",
-        "generatedAt": "2026-08-14T15:10:13.1822189\u002B05:30",
+        "generatedAt": "2026-08-14T15:10:33.1362047\u002B05:30",
         "businessDate": "2026-08-19",
         "eodDate": "2026-08-19",
         "eodId": 10010,
