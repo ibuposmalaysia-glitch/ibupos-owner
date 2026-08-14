@@ -1,12 +1,327 @@
 {
-  "outlets": {
-    "ibu-main": {
-      "id": "ibu-main",
-      "name": "IBU POS",
-      "snapshot": null,
-      "daily": {},
-      "deleted": [],
-      "drawer": []
-    }
-  }
+    "outlets":  {
+                    "ibu-main":  {
+                                     "id":  "ibu-main",
+                                     "name":  "IBU POS",
+                                     "daily":  {
+                                                   "2026-07-28":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  179.80,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  10,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  4.50,
+                                                                      "avgTicket":  17.98
+                                                                  },
+                                                   "2026-07-29":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  11.70,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  1,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  0.00,
+                                                                      "avgTicket":  11.70
+                                                                  },
+                                                   "2026-07-30":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  139.70,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  4,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  0.00,
+                                                                      "avgTicket":  34.92
+                                                                  },
+                                                   "2026-08-03":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  24.00,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  1,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  0.00,
+                                                                      "avgTicket":  24.00
+                                                                  },
+                                                   "2026-08-07":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  216.00,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  11,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  5.00,
+                                                                      "avgTicket":  19.64
+                                                                  },
+                                                   "2026-08-08":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  650.50,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  27,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  14.00,
+                                                                      "avgTicket":  24.09
+                                                                  },
+                                                   "2026-08-09":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  43.30,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  2,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  0.00,
+                                                                      "avgTicket":  21.65
+                                                                  },
+                                                   "2026-08-10":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  239.50,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  19,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  3.00,
+                                                                      "avgTicket":  12.61
+                                                                  },
+                                                   "2026-08-11":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  218.00,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  21,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  54.00,
+                                                                      "avgTicket":  10.38
+                                                                  },
+                                                   "2026-08-12":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  332.30,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  27,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  0.00,
+                                                                      "avgTicket":  12.31
+                                                                  },
+                                                   "2026-08-13":  {
+                                                                      "paymentMix":  [
+
+                                                                                     ],
+                                                                      "netSales":  89.50,
+                                                                      "topItems":  [
+
+                                                                                   ],
+                                                                      "tickets":  2,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                                      "refunds":  0.00,
+                                                                      "avgTicket":  44.75
+                                                                  },
+                                                   "2026-08-14":  {
+                                                                      "topItems":  [
+                                                                                       {
+                                                                                           "name":  "TEH TARIK (S)",
+                                                                                           "qty":  1
+                                                                                       },
+                                                                                       {
+                                                                                           "name":  "TEH O (S)",
+                                                                                           "qty":  1
+                                                                                       },
+                                                                                       {
+                                                                                           "name":  "TEH HALIA (S)",
+                                                                                           "qty":  1
+                                                                                       }
+                                                                                   ],
+                                                                      "refunds":  0.00,
+                                                                      "paymentMix":  [
+                                                                                         {
+                                                                                             "name":  "Card",
+                                                                                             "amount":  4.70
+                                                                                         }
+                                                                                     ],
+                                                                      "netSales":  4.70,
+                                                                      "avgTicket":  4.70,
+                                                                      "tickets":  1,
+                                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30"
+                                                                  }
+                                               },
+                                     "drawer":  [
+
+                                                ],
+                                     "deleted":  [
+                                                     {
+                                                         "deletedAt":  "2026-08-13T00:40:14.7370000",
+                                                         "qty":  1.00,
+                                                         "amount":  10.00,
+                                                         "itemName":  "AYAM TANDOORI",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-13T00:40:14.7370000",
+                                                         "qty":  1.00,
+                                                         "amount":  4.00,
+                                                         "itemName":  "NAAN GARLIC",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-13T00:40:14.7370000",
+                                                         "qty":  1.00,
+                                                         "amount":  6.00,
+                                                         "itemName":  "NAAN CHEESE GARLIC",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-13T00:40:14.7370000",
+                                                         "qty":  1.00,
+                                                         "amount":  8.50,
+                                                         "itemName":  "NAAN CHEESE DOUBLE GARLIC",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-12T20:38:38.6370000",
+                                                         "qty":  1.00,
+                                                         "amount":  7.00,
+                                                         "itemName":  "NAAN CHEESE DOUBLE",
+                                                         "deletedBy":  "ergll",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-12T20:38:18.3170000",
+                                                         "qty":  1.00,
+                                                         "amount":  7.00,
+                                                         "itemName":  "NAAN CHEESE DOUBLE",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-12T20:38:18.3170000",
+                                                         "qty":  1.00,
+                                                         "amount":  5.50,
+                                                         "itemName":  "MAGGI GORENG",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-12T20:38:18.3170000",
+                                                         "qty":  1.00,
+                                                         "amount":  9.00,
+                                                         "itemName":  "MAGGI GORENG DOUBLE",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-10T17:07:30.8830000",
+                                                         "qty":  1.00,
+                                                         "amount":  5.00,
+                                                         "itemName":  "NAAN GARLIC BUTTER",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  ""
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-08T22:48:22.6000000",
+                                                         "qty":  1.00,
+                                                         "amount":  1.80,
+                                                         "itemName":  "TEH O LIMAU (S)",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  "INV00059"
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-08T22:48:22.6000000",
+                                                         "qty":  1.00,
+                                                         "amount":  3.00,
+                                                         "itemName":  "NESTLO (S)",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  "INV00059"
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-08-07T22:31:21.2600000",
+                                                         "qty":  1.00,
+                                                         "amount":  1.80,
+                                                         "itemName":  "TEH O LIMAU (S)",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  "INV00064"
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-07-28T16:02:16.9300000",
+                                                         "qty":  1.00,
+                                                         "amount":  9.00,
+                                                         "itemName":  "KUEW TIAW SUP",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  "INV00009"
+                                                     },
+                                                     {
+                                                         "deletedAt":  "2026-07-28T14:28:49.3530000",
+                                                         "qty":  1.00,
+                                                         "amount":  1.80,
+                                                         "itemName":  "TEH O LIMAU (S)",
+                                                         "deletedBy":  "sa",
+                                                         "orderNo":  "INV00014"
+                                                     }
+                                                 ],
+                                     "snapshot":  {
+                                                      "refunds":  0.00,
+                                                      "netSales":  4.70,
+                                                      "avgTicket":  4.70,
+                                                      "paymentMix":  [
+                                                                         {
+                                                                             "name":  "Card",
+                                                                             "amount":  4.70
+                                                                         }
+                                                                     ],
+                                                      "outletName":  "IBU POS",
+                                                      "outletId":  "ibu-main",
+                                                      "topItems":  [
+                                                                       {
+                                                                           "name":  "TEH TARIK (S)",
+                                                                           "qty":  1
+                                                                       },
+                                                                       {
+                                                                           "name":  "TEH O (S)",
+                                                                           "qty":  1
+                                                                       },
+                                                                       {
+                                                                           "name":  "TEH HALIA (S)",
+                                                                           "qty":  1
+                                                                       }
+                                                                   ],
+                                                      "generatedAt":  "2026-08-14T14:32:46.5653997+05:30",
+                                                      "tickets":  1,
+                                                      "businessDate":  "2026-08-14"
+                                                  }
+                                 }
+                }
 }
