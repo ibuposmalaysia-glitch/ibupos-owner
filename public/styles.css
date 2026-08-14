@@ -1,0 +1,40 @@
+:root {
+  --navy: #031e3c;
+  --red: #df151c;
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --text: #122033;
+  --muted: #667085;
+  --line: #e4e7ec;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; font-family: Segoe UI, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+body { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+.header { background: var(--navy); color: #fff; padding: 16px 16px 14px; }
+.header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+.header .sub { margin-top: 4px; font-size: 12px; opacity: .75; }
+.wordmark { font-style: italic; font-weight: 800; }
+.wordmark span { color: var(--red); }
+.wrap { padding: 14px; max-width: 520px; margin: 0 auto; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+.kpi b { display: block; font-size: 20px; margin-top: 4px; }
+.kpi span { font-size: 12px; color: var(--muted); }
+.nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.nav button, .btn, select, input {
+  font: inherit; border-radius: 10px; border: 1px solid var(--line); padding: 10px 12px; background: #fff;
+}
+.nav button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn-primary { width: 100%; background: var(--navy); color: #fff; border: 0; font-weight: 700; margin-top: 10px; }
+.row { display: flex; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.row:last-child { border-bottom: 0; }
+.muted { color: var(--muted); font-size: 12px; }
+.empty { color: var(--muted); padding: 24px 8px; text-align: center; }
+.pin { font-size: 22px; letter-spacing: 8px; text-align: center; width: 100%; padding: 14px; }
+.err { color: var(--red); font-size: 13px; margin-top: 8px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; }
+select { width: 100%; margin-bottom: 10px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.chips button { font-size: 12px; padding: 6px 10px; }
+.chips button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
