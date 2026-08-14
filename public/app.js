@@ -246,10 +246,20 @@ async function loadLists() {
   await loadHistory();
 }
 
+let lastLiveKey = "";
+
 async function loadAll() {
   const live = await api("/api/owner/live");
   outlets = live.outlets || [];
   if (!outletId) outletId = outlets[0] ? outlets[0].id : "ibu-main";
+  if (tab === "live") {
+    const key = JSON.stringify(currentOutlet().snapshot || null);
+    if (key !== lastLiveKey) {
+      lastLiveKey = key;
+      paint();
+    }
+    return;
+  }
   await loadLists();
   paint();
 }
@@ -265,4 +275,7 @@ async function boot() {
 }
 
 boot();
-setInterval(() => { if (tab === "live" && outletId) loadAll().catch(() => {}); }, 12000);
+setInterval(() => {
+  if (!outletId) return;
+  if (tab === "live" || tab === "deleted" || tab === "drawer") loadAll().catch(() => {});
+}, 2000);
