@@ -61,7 +61,7 @@
               "qty": 1
             }
           ],
-          "generatedAt": "2026-08-14T15:11:53.1457194\u002B05:30",
+          "generatedAt": "2026-08-14T15:12:13.1366957\u002B05:30",
           "eodDate": "2026-08-19",
           "shiftName": "SHIFT 2"
         },
@@ -644,7 +644,7 @@
       "snapshot": {
         "outletId": "ibu-main",
         "outletName": "IBU POS",
-        "generatedAt": "2026-08-14T15:11:53.1457194\u002B05:30",
+        "generatedAt": "2026-08-14T15:12:13.1366957\u002B05:30",
         "businessDate": "2026-08-19",
         "eodDate": "2026-08-19",
         "eodId": 10010,
