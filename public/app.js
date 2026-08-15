@@ -22,10 +22,43 @@ function fmtDate(iso) {
 }
 
 async function api(path, opts) {
-  const res = await fetch(path, Object.assign({ credentials: "same-origin" }, opts || {}));
+  const res = await fetch(path, Object.assign({ credentials: "same-origin", cache: "no-store" }, opts || {}));
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Request failed");
   return data;
+}
+
+const STORE_URL = "https://api.github.com/repos/ibuposmalaysia-glitch/ibupos-owner/contents/data/store.json?ref=owner-data";
+let storeEtag = "";
+let githubState = null;
+
+async function loadGithubState() {
+  try {
+    const headers = { Accept: "application/vnd.github.raw+json", "Cache-Control": "no-cache" };
+    if (storeEtag) headers["If-None-Match"] = storeEtag;
+    const res = await fetch(STORE_URL, { headers, cache: "no-store" });
+    if (res.status === 304) return githubState;
+    if (!res.ok) return githubState;
+    const etag = res.headers.get("ETag");
+    if (etag) storeEtag = etag;
+    const data = await res.json();
+    if (data && data.outlets) githubState = data;
+    return githubState;
+  } catch {
+    return githubState;
+  }
+}
+
+function applyGithubOutlets(state) {
+  if (!state || !state.outlets) return null;
+  const list = Object.keys(state.outlets).map(id => {
+    const o = state.outlets[id] || {};
+    return { id: o.id || id, name: o.name || id, snapshot: o.snapshot || null };
+  });
+  if (!list.length) return null;
+  outlets = list;
+  if (!outletId || !state.outlets[outletId]) outletId = list[0].id;
+  return state.outlets[outletId] || state.outlets[list[0].id] || null;
 }
 
 let lastLiveKey = "";
@@ -362,14 +395,21 @@ function alertMessage(alerts) {
   return "";
 }
 
-async function loadLists(includeHistory) {
+async function loadLists(includeHistory, ghOutlet) {
   if (!outletId) return;
-  const [d, w] = await Promise.all([
-    api(`/api/owner/deleted?outletId=${encodeURIComponent(outletId)}`),
-    api(`/api/owner/drawer?outletId=${encodeURIComponent(outletId)}`)
-  ]);
-  const nextDeleted = d.items || [];
-  const nextDrawer = w.items || [];
+  let nextDeleted = deleted;
+  let nextDrawer = drawer;
+  if (ghOutlet) {
+    nextDeleted = ghOutlet.deleted || [];
+    nextDrawer = ghOutlet.drawer || [];
+  } else {
+    const [d, w] = await Promise.all([
+      api(`/api/owner/deleted?outletId=${encodeURIComponent(outletId)}`),
+      api(`/api/owner/drawer?outletId=${encodeURIComponent(outletId)}`)
+    ]);
+    nextDeleted = d.items || [];
+    nextDrawer = w.items || [];
+  }
   const alerts = detectAlerts(nextDeleted, nextDrawer);
   deleted = nextDeleted;
   drawer = nextDrawer;
@@ -382,10 +422,14 @@ async function loadLists(includeHistory) {
 }
 
 async function loadAll(forcePaint) {
-  const live = await api("/api/owner/live");
-  outlets = live.outlets || [];
-  if (!outletId) outletId = outlets[0] ? outlets[0].id : "ibu-main";
-  await loadLists(forcePaint);
+  const gh = await loadGithubState();
+  const ghOutlet = applyGithubOutlets(gh);
+  if (!ghOutlet) {
+    const live = await api("/api/owner/live");
+    outlets = live.outlets || [];
+    if (!outletId) outletId = outlets[0] ? outlets[0].id : "ibu-main";
+  }
+  await loadLists(forcePaint, ghOutlet);
   const snap = currentOutlet().snapshot || {};
   const key = [
     snap.generatedAt || "",
