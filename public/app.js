@@ -284,24 +284,28 @@ function unlockAudio() {
 function playAlert() {
   try {
     unlockAudio();
-    if (navigator.vibrate) navigator.vibrate([180, 70, 180]);
+    if (navigator.vibrate) navigator.vibrate([480, 120, 480, 120, 640]);
     if (!audioCtx) return;
     const now = audioCtx.currentTime;
-    const beep = (freq, start, dur) => {
+    const note = (type, freq, endFreq, start, dur, peak) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = "square";
-      osc.frequency.value = freq;
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now + start);
+      if (endFreq && endFreq !== freq)
+        osc.frequency.linearRampToValueAtTime(endFreq, now + start + dur);
       gain.gain.setValueAtTime(0.0001, now + start);
-      gain.gain.exponentialRampToValueAtTime(0.16, now + start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(peak, now + start + 0.08);
+      gain.gain.exponentialRampToValueAtTime(peak * 0.72, now + start + dur * 0.62);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start(now + start);
-      osc.stop(now + start + dur + 0.02);
+      osc.stop(now + start + dur + 0.04);
     };
-    beep(880, 0, 0.16);
-    beep(1320, 0.18, 0.22);
+    note("sine", 494, 494, 0, 0.9, 0.18);
+    note("triangle", 740, 880, 0.78, 1.15, 0.17);
+    note("sine", 587, 440, 1.78, 1.05, 0.15);
   } catch { }
 }
 
@@ -382,7 +386,15 @@ async function loadAll(forcePaint) {
   outlets = live.outlets || [];
   if (!outletId) outletId = outlets[0] ? outlets[0].id : "ibu-main";
   await loadLists(forcePaint);
-  const key = JSON.stringify(currentOutlet().snapshot || null) + "|" + (deleted[0] && (deleted[0].deletedAt || deleted[0].itemName)) + "|" + (drawer[0] && (drawer[0].openedAt || drawer[0].userName));
+  const snap = currentOutlet().snapshot || {};
+  const key = [
+    snap.generatedAt || "",
+    snap.netSales,
+    snap.tickets,
+    snap.eodNetSales,
+    deleted[0] && (deleted[0].id || deleted[0].deletedAt || deleted[0].itemName),
+    drawer[0] && (drawer[0].openedAt || drawer[0].userName)
+  ].join("|");
   if (forcePaint || key !== lastLiveKey) {
     lastLiveKey = key;
     paint();
@@ -424,4 +436,4 @@ boot();
 setInterval(() => {
   if (!signedIn) return;
   loadAll(false).catch(() => {});
-}, 1500);
+}, 1000);
