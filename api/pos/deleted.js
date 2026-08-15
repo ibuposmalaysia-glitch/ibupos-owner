@@ -15,6 +15,7 @@ module.exports = async (req, res) => {
   const state = await store.load(token);
   const outlet = store.ensureOutlet(state, outletId(req, body), body.outletName);
   const row = {
+    id: body.id || "",
     itemName: body.itemName || "Item",
     qty: body.qty || 0,
     amount: body.amount || 0,

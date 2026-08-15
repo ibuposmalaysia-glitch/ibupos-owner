@@ -263,6 +263,7 @@ async function loadHistory() {
 function eventKey(r, type) {
   return [
     type,
+    r.id || "",
     r.deletedAt || r.openedAt || "",
     r.itemName || r.userName || "",
     r.orderNo || r.source || "",
@@ -316,29 +317,45 @@ function showToast(text) {
 }
 
 function detectAlerts(newDeleted, newDrawer) {
-  const dKeys = (newDeleted || []).map(r => eventKey(r, "d"));
-  const wKeys = (newDrawer || []).map(r => eventKey(r, "w"));
+  const dRows = newDeleted || [];
+  const wRows = newDrawer || [];
   if (!alertsSeeded) {
-    dKeys.forEach(k => knownDeleted.add(k));
-    wKeys.forEach(k => knownDrawer.add(k));
+    dRows.forEach(r => knownDeleted.add(eventKey(r, "d")));
+    wRows.forEach(r => knownDrawer.add(eventKey(r, "w")));
     alertsSeeded = true;
-    return { deleted: 0, drawer: 0 };
+    return { deleted: [], drawer: [] };
   }
-  let nd = 0;
-  let nw = 0;
-  dKeys.forEach(k => {
+  const addedDeleted = [];
+  const addedDrawer = [];
+  dRows.forEach(r => {
+    const k = eventKey(r, "d");
     if (!knownDeleted.has(k)) {
       knownDeleted.add(k);
-      nd++;
+      addedDeleted.push(r);
     }
   });
-  wKeys.forEach(k => {
+  wRows.forEach(r => {
+    const k = eventKey(r, "w");
     if (!knownDrawer.has(k)) {
       knownDrawer.add(k);
-      nw++;
+      addedDrawer.push(r);
     }
   });
-  return { deleted: nd, drawer: nw };
+  return { deleted: addedDeleted, drawer: addedDrawer };
+}
+
+function alertMessage(alerts) {
+  const d = alerts.deleted || [];
+  const w = alerts.drawer || [];
+  if (d.length && w.length) {
+    const name = d[0].itemName || "Item";
+    return name + " deleted and cash drawer opened";
+  }
+  if (d.length === 1) return (d[0].itemName || "Item") + " deleted";
+  if (d.length) return d.length + " items deleted";
+  if (w.length === 1) return "Cash drawer opened";
+  if (w.length) return w.length + " drawer opens";
+  return "";
 }
 
 async function loadLists(includeHistory) {
@@ -352,11 +369,9 @@ async function loadLists(includeHistory) {
   const alerts = detectAlerts(nextDeleted, nextDrawer);
   deleted = nextDeleted;
   drawer = nextDrawer;
-  if (alerts.deleted || alerts.drawer) {
+  if (alerts.deleted.length || alerts.drawer.length) {
     playAlert();
-    if (alerts.deleted && alerts.drawer) showToast("Item deleted and cash drawer opened");
-    else if (alerts.deleted) showToast(alerts.deleted === 1 ? "Item deleted" : alerts.deleted + " items deleted");
-    else showToast(alerts.drawer === 1 ? "Cash drawer opened" : alerts.drawer + " drawer opens");
+    showToast(alertMessage(alerts));
   }
   if (tab === "history" || includeHistory)
     await loadHistory();

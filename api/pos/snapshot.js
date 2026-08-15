@@ -15,17 +15,14 @@ module.exports = async (req, res) => {
   const state = await store.load(token);
   const outlet = store.ensureOutlet(state, outletId(req, body), body.outletName);
   const eods = body.eods;
-  const deleted = body.deleted;
   const snap = { ...body };
   delete snap.eods;
   delete snap.deleted;
+  delete snap.drawer;
   outlet.snapshot = {
     ...snap,
     generatedAt: body.generatedAt || new Date().toISOString()
   };
-  if (Array.isArray(deleted)) {
-    outlet.deleted = deleted.slice(0, 500);
-  }
   if (Array.isArray(eods)) {
     if (!outlet.eods) outlet.eods = {};
     eods.forEach((eod) => {
