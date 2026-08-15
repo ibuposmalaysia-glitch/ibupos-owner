@@ -28,12 +28,26 @@ async function api(path, opts) {
   return data;
 }
 
+let lastLiveKey = "";
+let knownDeleted = new Set();
+let knownDrawer = new Set();
+let alertsSeeded = false;
+let audioCtx = null;
+let signedIn = false;
+
+function wordmark() {
+  return `<div class="wordmark"><span>i</span>bu<span class="pos-text">POS</span></div>`;
+}
+
 function header(title, sub) {
   return `<div class="header"><div class="topbar"><div>
-    <div class="wordmark"><span>i</span>bu</div>
+    ${wordmark()}
     <h1>${title}</h1>
     <div class="sub">${sub || ""}</div>
-  </div><button class="btn" id="logout">Sign out</button></div></div>`;
+  </div><div class="header-actions">
+    <button class="btn btn-sync" id="sync">Sync</button>
+    <button class="btn" id="logout">Sign out</button>
+  </div></div></div>`;
 }
 
 function nav() {
@@ -61,22 +75,23 @@ function currentOutlet() {
 
 function renderLogin(err) {
   app.innerHTML = `
-    <div class="header"><div class="wordmark"><span>i</span>bu</div><h1>Owner reports</h1>
+    <div class="header">${wordmark()}<h1>Owner reports</h1>
     <div class="sub">Enter the owner PIN</div></div>
     <div class="wrap"><div class="card">
       <input class="pin" id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN" />
       ${err ? `<div class="err">${err}</div>` : ""}
       <button class="btn btn-primary" id="go">Open reports</button>
     </div></div>`;
-  document.getElementById("go").onclick = signIn;
-  document.getElementById("pin").onkeydown = (e) => { if (e.key === "Enter") signIn(); };
+  document.getElementById("go").onclick = () => { unlockAudio(); signIn(); };
+  document.getElementById("pin").onkeydown = (e) => { if (e.key === "Enter") { unlockAudio(); signIn(); } };
 }
 
 async function signIn() {
   const pin = document.getElementById("pin").value.trim();
   try {
     await api("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pin }) });
-    await loadAll();
+    signedIn = true;
+    await loadAll(true);
   } catch (e) {
     renderLogin(e.message);
   }
@@ -203,13 +218,19 @@ function renderDrawer() {
 function bindChrome() {
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
     tab = b.getAttribute("data-tab");
-    if (tab === "deleted" || tab === "drawer" || tab === "history") loadAll().catch(() => paint());
+    if (tab === "deleted" || tab === "drawer" || tab === "history") loadAll(true).catch(() => paint());
     else paint();
   });
   const out = document.getElementById("outlet");
   if (out) out.onchange = async () => { outletId = out.value; await loadLists(); paint(); };
   const lo = document.getElementById("logout");
-  if (lo) lo.onclick = async () => { await api("/api/logout", { method: "POST" }); renderLogin(); };
+  if (lo) lo.onclick = async () => {
+    signedIn = false;
+    await api("/api/logout", { method: "POST" });
+    renderLogin();
+  };
+  const sync = document.getElementById("sync");
+  if (sync) sync.onclick = () => syncNow(sync);
 }
 
 function paint() {
@@ -239,40 +260,146 @@ async function loadHistory() {
   if (!openEod && historyEods[0]) openEod = historyEods[0].eodDate;
 }
 
-async function loadLists() {
+function eventKey(r, type) {
+  return [
+    type,
+    r.deletedAt || r.openedAt || "",
+    r.itemName || r.userName || "",
+    r.orderNo || r.source || "",
+    r.qty || "",
+    r.amount || ""
+  ].join("|");
+}
+
+function unlockAudio() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    if (!audioCtx) audioCtx = new Ctx();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch { }
+}
+
+function playAlert() {
+  try {
+    unlockAudio();
+    if (navigator.vibrate) navigator.vibrate([180, 70, 180]);
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    const beep = (freq, start, dur) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "square";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, now + start);
+      gain.gain.exponentialRampToValueAtTime(0.16, now + start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now + start);
+      osc.stop(now + start + dur + 0.02);
+    };
+    beep(880, 0, 0.16);
+    beep(1320, 0.18, 0.22);
+  } catch { }
+}
+
+function showToast(text) {
+  const old = document.getElementById("owner-toast");
+  if (old) old.remove();
+  const el = document.createElement("div");
+  el.id = "owner-toast";
+  el.className = "toast";
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 4000);
+}
+
+function detectAlerts(newDeleted, newDrawer) {
+  const dKeys = (newDeleted || []).map(r => eventKey(r, "d"));
+  const wKeys = (newDrawer || []).map(r => eventKey(r, "w"));
+  if (!alertsSeeded) {
+    dKeys.forEach(k => knownDeleted.add(k));
+    wKeys.forEach(k => knownDrawer.add(k));
+    alertsSeeded = true;
+    return { deleted: 0, drawer: 0 };
+  }
+  let nd = 0;
+  let nw = 0;
+  dKeys.forEach(k => {
+    if (!knownDeleted.has(k)) {
+      knownDeleted.add(k);
+      nd++;
+    }
+  });
+  wKeys.forEach(k => {
+    if (!knownDrawer.has(k)) {
+      knownDrawer.add(k);
+      nw++;
+    }
+  });
+  return { deleted: nd, drawer: nw };
+}
+
+async function loadLists(includeHistory) {
   if (!outletId) return;
   const [d, w] = await Promise.all([
     api(`/api/owner/deleted?outletId=${encodeURIComponent(outletId)}`),
     api(`/api/owner/drawer?outletId=${encodeURIComponent(outletId)}`)
   ]);
-  deleted = d.items || [];
-  drawer = w.items || [];
-  await loadHistory();
+  const nextDeleted = d.items || [];
+  const nextDrawer = w.items || [];
+  const alerts = detectAlerts(nextDeleted, nextDrawer);
+  deleted = nextDeleted;
+  drawer = nextDrawer;
+  if (alerts.deleted || alerts.drawer) {
+    playAlert();
+    if (alerts.deleted && alerts.drawer) showToast("Item deleted and cash drawer opened");
+    else if (alerts.deleted) showToast(alerts.deleted === 1 ? "Item deleted" : alerts.deleted + " items deleted");
+    else showToast(alerts.drawer === 1 ? "Cash drawer opened" : alerts.drawer + " drawer opens");
+  }
+  if (tab === "history" || includeHistory)
+    await loadHistory();
 }
 
-let lastLiveKey = "";
-
-async function loadAll() {
+async function loadAll(forcePaint) {
   const live = await api("/api/owner/live");
   outlets = live.outlets || [];
   if (!outletId) outletId = outlets[0] ? outlets[0].id : "ibu-main";
-  if (tab === "live") {
-    const key = JSON.stringify(currentOutlet().snapshot || null);
-    if (key !== lastLiveKey) {
-      lastLiveKey = key;
-      paint();
-    }
-    return;
+  await loadLists(forcePaint);
+  const key = JSON.stringify(currentOutlet().snapshot || null) + "|" + (deleted[0] && (deleted[0].deletedAt || deleted[0].itemName)) + "|" + (drawer[0] && (drawer[0].openedAt || drawer[0].userName));
+  if (forcePaint || key !== lastLiveKey) {
+    lastLiveKey = key;
+    paint();
   }
-  await loadLists();
-  paint();
+}
+
+async function syncNow(btn) {
+  unlockAudio();
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Syncing…";
+  }
+  try {
+    await loadAll(true);
+    showToast("Synced latest sales");
+  } catch (e) {
+    showToast(e.message || "Sync failed");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Sync";
+    }
+  }
 }
 
 async function boot() {
   try {
     const s = await api("/api/session");
-    if (s.signedIn) await loadAll();
-    else renderLogin();
+    if (s.signedIn) {
+      signedIn = true;
+      await loadAll(true);
+    } else renderLogin();
   } catch {
     renderLogin();
   }
@@ -280,6 +407,6 @@ async function boot() {
 
 boot();
 setInterval(() => {
-  if (!outletId) return;
-  if (tab === "live" || tab === "deleted" || tab === "drawer") loadAll().catch(() => {});
-}, 2000);
+  if (!signedIn) return;
+  loadAll(false).catch(() => {});
+}, 1500);
