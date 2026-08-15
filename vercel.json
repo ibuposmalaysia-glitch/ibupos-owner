@@ -1,4 +1,9 @@
 {
+  "git": {
+    "deploymentEnabled": {
+      "owner-data": false
+    }
+  },
   "headers": [
     {
       "source": "/api/(.*)",
