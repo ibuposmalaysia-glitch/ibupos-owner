@@ -13,9 +13,18 @@ body { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
 .header { background: var(--navy); color: #fff; padding: 16px 16px 14px; }
 .header h1 { margin: 0; font-size: 18px; font-weight: 700; }
 .header .sub { margin-top: 4px; font-size: 12px; opacity: .75; }
-.wordmark { font-style: italic; font-weight: 800; }
-.wordmark span { color: var(--red); }
-.wordmark .pos-text { font-style: normal; font-weight: 800; color: #fff; letter-spacing: .06em; font-size: 15px; margin-left: 6px; }
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+.wordmark img {
+  height: 28px;
+  width: auto;
+  display: block;
+}
 .header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 .btn-sync { font-weight: 700; padding: 8px 12px; }
 .btn-sync:disabled { opacity: .6; }

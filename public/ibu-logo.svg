@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" width="640" height="260">
+  <rect width="640" height="260" fill="#ffffff"/>
+  <text x="320" y="188" text-anchor="middle" dominant-baseline="alphabetic"
+        font-family="Segoe UI Black, Segoe UI, Arial, sans-serif"
+        font-size="132" font-style="italic" font-weight="800"
+        fill="#031E3C">ıbu</text>
+  <circle cx="216" cy="62" r="20" fill="#DF151C"/>
+</svg>

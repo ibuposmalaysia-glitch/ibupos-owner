@@ -69,7 +69,7 @@ let audioCtx = null;
 let signedIn = false;
 
 function wordmark() {
-  return `<div class="wordmark"><span>i</span>bu<span class="pos-text">POS</span></div>`;
+  return `<div class="wordmark"><img src="/ibu-logo.png" alt="IBU POS" /></div>`;
 }
 
 function header(title, sub) {
