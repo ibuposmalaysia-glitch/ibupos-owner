@@ -29,8 +29,52 @@ async function api(path, opts) {
 }
 
 const STORE_URL = "https://api.github.com/repos/ibuposmalaysia-glitch/ibupos-owner/contents/data/store.json?ref=owner-data";
+const POINTER_URL = "https://api.github.com/repos/ibuposmalaysia-glitch/ibupos-owner/contents/data/cloudflare.json?ref=owner-data";
+const DEFAULT_WORKER = "https://ibu-pos-owner.ibupos-malaysia.workers.dev";
 let storeEtag = "";
 let githubState = null;
+let workerBase = DEFAULT_WORKER;
+let pointerAt = 0;
+let cloudEods = null;
+
+async function refreshWorkerUrl(force) {
+  const now = Date.now();
+  if (!force && pointerAt && now - pointerAt < 120000) return workerBase;
+  pointerAt = now;
+  try {
+    const res = await fetch(POINTER_URL, {
+      headers: { Accept: "application/vnd.github.raw+json", "Cache-Control": "no-cache" },
+      cache: "no-store"
+    });
+    if (!res.ok) return workerBase;
+    const data = await res.json();
+    const url = data && data.workerUrl ? String(data.workerUrl).trim().replace(/\/+$/, "") : "";
+    if (url.indexOf("https://") === 0) workerBase = url;
+  } catch {}
+  return workerBase;
+}
+
+async function loadCloudSnapshot() {
+  await refreshWorkerUrl(false);
+  try {
+    const res = await fetch(workerBase + "/api/live", { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const snap = data && data.snapshot;
+    if (!snap || typeof snap !== "object") return null;
+    if (!snap.outletId && snap.netSales == null && !snap.eods) return null;
+    return snap;
+  } catch {
+    return null;
+  }
+}
+
+function applyCloudSnapshot(snap) {
+  const id = snap.outletId || "ibu-main";
+  outlets = [{ id, name: snap.outletName || id, snapshot: snap }];
+  outletId = id;
+  cloudEods = Array.isArray(snap.eods) ? snap.eods : [];
+}
 
 async function loadGithubState() {
   try {
@@ -286,6 +330,12 @@ function historyRange(eods) {
 }
 
 async function loadHistory() {
+  if (cloudEods && cloudEods.length) {
+    const { from, to } = historyRange(cloudEods);
+    historyEods = cloudEods.filter(e => e.eodDate >= from && e.eodDate <= to);
+    if (!openEod && historyEods[0]) openEod = historyEods[0].eodDate;
+    return;
+  }
   const all = await api(`/api/owner/history?outletId=${encodeURIComponent(outletId)}`);
   const list = all.eods && all.eods.length ? all.eods : (all.days || []).map(d => ({ eodDate: d.date, ...d, shifts: [] }));
   const { from, to } = historyRange(list);
@@ -422,9 +472,16 @@ async function loadLists(includeHistory, ghOutlet) {
 }
 
 async function loadAll(forcePaint) {
-  const gh = await loadGithubState();
-  const ghOutlet = applyGithubOutlets(gh);
-  if (!ghOutlet) {
+  const cloudSnap = await loadCloudSnapshot();
+  let ghOutlet = null;
+  if (cloudSnap) {
+    applyCloudSnapshot(cloudSnap);
+  } else {
+    cloudEods = null;
+    const gh = await loadGithubState();
+    ghOutlet = applyGithubOutlets(gh);
+  }
+  if (!cloudSnap && !ghOutlet) {
     const live = await api("/api/owner/live");
     outlets = live.outlets || [];
     if (!outletId) outletId = outlets[0] ? outlets[0].id : "ibu-main";
@@ -452,6 +509,7 @@ async function syncNow(btn) {
     btn.textContent = "Syncing…";
   }
   try {
+    await refreshWorkerUrl(true);
     await loadAll(true);
     showToast("Synced latest sales");
   } catch (e) {
@@ -480,4 +538,4 @@ boot();
 setInterval(() => {
   if (!signedIn) return;
   loadAll(false).catch(() => {});
-}, 1000);
+}, 5000);
